@@ -1,0 +1,14 @@
+image_size: 128
+batch_size: 8
+epochs_per_task: 50
+learning_rate: 0.0002
+weight_decay: 0.0001
+adapter_bottleneck: 32
+prompt_dim: 64
+replay_capacity: 256
+replay_per_batch: 2
+lambda_cover: 1.0
+lambda_secret: 1.0
+lambda_robust: 1.0
+lambda_distill: 0.2
+tasks: [clean, jpeg, gaussian, resize, crop]

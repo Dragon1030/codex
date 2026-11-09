@@ -1,0 +1,6 @@
+torch
+torchvision
+Pillow
+PyYAML
+scikit-image
+tqdm
