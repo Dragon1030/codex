@@ -152,7 +152,34 @@ python tools/forgetting.py runs/div2k_continual/metrics.csv
 
 The trainer does not currently write PNG visualizations. Its outputs are the
 checkpoints, `metrics.csv`, and the console metrics; image visualization can
-be added as a separate evaluation script without changing the training loop.
+be generated with the included evaluation script below.
+
+## Qualitative visualization
+
+Use a completed checkpoint and the validation images to save one six-column
+panel per sample and task. The columns are:
+
+```text
+cover | container | amplified cover difference |
+secret | recovered secret | amplified secret difference
+```
+
+The difference columns are amplified for display only; the CSV keeps the
+unamplified PSNR, SSIM, and APD measurements.
+
+```bash
+python tools/visualize.py \
+  --checkpoint runs/div2k_continual/stage_04.pt \
+  --val_dir /data/zhangle/HiNet/DIV2K_valid_HR \
+  --image_size 128 \
+  --tasks clean,jpeg,gaussian,resize,crop \
+  --max_samples 8 \
+  --out_dir runs/div2k_continual/visuals
+```
+
+This writes `sample_XXXX_<task>.png` and
+`visualization_metrics.csv`. The script infers the adapter and prompt sizes
+from the checkpoint, so they do not need to be repeated.
 
 ## Checkpoints and interruption recovery
 
