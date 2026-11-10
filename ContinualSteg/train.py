@@ -34,6 +34,12 @@ def parse_args():
     parser.add_argument("--checkpoint", default="")
     parser.add_argument("--resume", default="")
     parser.add_argument("--tasks", default="clean,jpeg,gaussian,resize,crop")
+    parser.add_argument(
+        "--strategy",
+        choices=["continual", "sequential_finetune"],
+        default="continual",
+        help="continual adapter isolation or naive sequential fine-tuning baseline",
+    )
     parser.add_argument("--image_size", type=int, default=128)
     parser.add_argument("--batch_size", type=int, default=8)
     parser.add_argument("--epochs_per_task", type=int, default=50)
@@ -138,10 +144,11 @@ def evaluate(model, task, loader, device, max_batches=0):
     return {key: sum(value) / max(1, len(value)) for key, value in values.items()}
 
 
-def save_stage(path, model, optimizer, replay, task_id, epoch):
+def save_stage(path, model, optimizer, replay, task_id, epoch, strategy="continual"):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     torch.save({"model": model.state_dict(), "optimizer": optimizer.state_dict(),
-                "replay": replay.state_dict(), "task_id": task_id, "epoch": epoch}, path)
+                "replay": replay.state_dict(), "task_id": task_id, "epoch": epoch,
+                "strategy": strategy}, path)
 
 
 def main():
@@ -158,6 +165,12 @@ def main():
     checkpoint_path = args.checkpoint or args.resume
     if checkpoint_path:
         state = torch.load(checkpoint_path, map_location=device)
+        saved_strategy = state.get("strategy", "continual")
+        if saved_strategy != args.strategy:
+            raise ValueError(
+                f"checkpoint strategy={saved_strategy!r} does not match "
+                f"requested strategy={args.strategy!r}"
+            )
         resume_state = state
         model.load_state_dict(state["model"])
         replay.load_state_dict(state["replay"])
@@ -180,7 +193,14 @@ def main():
 
     old_model = None
     for task in tasks[start_task:]:
-        if task.task_id == 0 and start_task == 0:
+        if args.strategy == "sequential_finetune":
+            # Naive baseline: update the full model for every task and do not
+            # keep a frozen teacher. Replay/distillation can be disabled from
+            # the command line for a pure sequential fine-tuning comparison.
+            old_model = None
+            for parameter in model.parameters():
+                parameter.requires_grad = True
+        elif task.task_id == 0 and start_task == 0:
             for parameter in model.parameters():
                 parameter.requires_grad = True
             for name, parameter in model.named_parameters():
@@ -198,7 +218,7 @@ def main():
             optimizer.load_state_dict(resume_state["optimizer"])
         latest_path = os.path.join(args.checkpoint_dir, "latest.pt")
         def checkpoint_callback(epoch):
-            save_stage(latest_path, model, optimizer, replay, task.task_id, epoch)
+            save_stage(latest_path, model, optimizer, replay, task.task_id, epoch, args.strategy)
         train_one_task(model, old_model, task, train_loader, replay, args, device, optimizer,
                        start_epoch=start_epoch if task.task_id == start_task else 0,
                        checkpoint_callback=checkpoint_callback)
@@ -216,7 +236,7 @@ def main():
             rows.append({"stage": task.task_id, "task": seen_task.name, **metrics})
             print(f"stage={task.name} eval={seen_task.name} {metrics}")
         save_stage(os.path.join(args.checkpoint_dir, f"stage_{task.task_id:02d}.pt"),
-                   model, optimizer, replay, task.task_id, args.epochs_per_task)
+                   model, optimizer, replay, task.task_id, args.epochs_per_task, args.strategy)
         start_epoch = 0
         with open(os.path.join(args.checkpoint_dir, "metrics.csv"), "a", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=sorted(rows[0]))

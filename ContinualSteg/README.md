@@ -21,6 +21,25 @@ The clean stage trains the base hiding/reveal network. Later stages freeze the
 base and old task paths, train a new task adapter and prompt, and use replay
 plus output distillation to reduce forgetting.
 
+## Where continual learning appears
+
+This is a sequential task protocol rather than ordinary joint training:
+
+1. Stage 0 learns the clean task.
+2. Stage 1 learns JPEG-like degradation while the clean adapter is frozen.
+3. Later stages add one attack at a time and evaluate every task seen so far.
+4. A replay buffer revisits examples from old tasks.
+5. Output distillation keeps the new model close to the frozen previous model
+   on replayed examples.
+6. Each task has its own adapter and prompt; old paths are not overwritten.
+
+The `metrics.csv` file is therefore a continual-learning matrix: each stage
+contains results for all tasks seen up to that stage. Comparing a task's best
+secret PSNR with its final secret PSNR gives its forgetting. The model also
+stores task prototypes and exposes `route()`/`recover_unknown()` for future
+unknown-attack routing experiments; the default benchmark uses known task IDs
+so that the task-adaptation and forgetting effects can be measured separately.
+
 ## Task stream
 
 The default stream is:
@@ -120,6 +139,39 @@ For the five default tasks, `epochs_per_task=50` means 50 epochs per task,
 not 50 epochs total. Reduce `--batch_size` or `--image_size` if the GPU runs
 out of memory.
 
+## Reproducible ablations
+
+Run the proposed method and three controls with the same data split, task
+order, seed, and evaluation code:
+
+```bash
+EPOCHS_PER_TASK=10 MAX_TRAIN_BATCHES=20 MAX_VAL_BATCHES=5 \
+  ./scripts/run_ablation.sh
+```
+
+Use `EPOCHS_PER_TASK=50` and omit the batch limits for the reported run. The
+script creates:
+
+```text
+runs/ablation/
+├── full/                 # adapters + replay + distillation
+├── no_distill/           # adapters + replay
+├── adapter_only/         # isolated adapters only
+├── sequential_finetune/  # naive full-model sequential fine-tuning
+└── comparison.csv
+```
+
+For each control, compare final secret recovery quality and forgetting. The
+sequential fine-tuning control updates the full network at every task and is
+the most direct test for catastrophic forgetting. The other two controls
+isolate the contributions of distillation and replay.
+
+The ablation script is intentionally explicit and can be run in a Docker
+container after installing the non-PyTorch dependencies. Use a separate
+`--checkpoint_dir` for each method; never overwrite the proposed run.
+Checkpoints record the strategy used to create them; resuming with a different
+strategy is rejected to prevent mixing experiment conditions.
+
 The trainer writes `latest.pt` after every epoch and `stage_XX.pt` after each
 completed task. Resume an interrupted stage with:
 
@@ -180,6 +232,25 @@ python tools/visualize.py \
 This writes `sample_XXXX_<task>.png` and
 `visualization_metrics.csv`. The script infers the adapter and prompt sizes
 from the checkpoint, so they do not need to be repeated.
+
+Plot stage-wise metric curves after training:
+
+```bash
+python tools/plot_metrics.py \
+  --metrics runs/div2k_continual/metrics.csv \
+  --out_dir runs/div2k_continual/plots
+```
+
+Compare multiple ablation runs:
+
+```bash
+python tools/compare_runs.py \
+  --run full=runs/ablation/full/metrics.csv \
+  --run no_distill=runs/ablation/no_distill/metrics.csv \
+  --run adapter_only=runs/ablation/adapter_only/metrics.csv \
+  --run sequential_finetune=runs/ablation/sequential_finetune/metrics.csv \
+  --out runs/ablation/comparison.csv
+```
 
 ## Checkpoints and interruption recovery
 
