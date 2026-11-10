@@ -101,6 +101,11 @@ class ContinualHidingModel(nn.Module):
         recovered = self.reveal(container, task_id, prompt)
         return container, recovered
 
+    def reveal_container(self, container: Tensor, task_id: int):
+        """Reveal a container using the prompt assigned to ``task_id``."""
+        prompt = self.prompt_bank(task_id, container.shape[0], container.device)
+        return self.reveal(container, task_id, prompt)
+
     def freeze_backbone(self):
         for name, parameter in self.named_parameters():
             parameter.requires_grad = (

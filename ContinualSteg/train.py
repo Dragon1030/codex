@@ -76,7 +76,7 @@ def train_one_task(model, old_model, task, loader, replay, args, device, optimiz
             cover, secret = cover.to(device), secret.to(device)
             container, _ = model.hide_reveal(cover, secret, task.task_id)
             attacked = apply_attack(container, task)
-            recovered = model.reveal(attacked, task.task_id)
+            recovered = model.reveal_container(attacked, task.task_id)
 
             cover_loss = F.l1_loss(container, cover)
             secret_loss = F.l1_loss(recovered, secret)
@@ -129,7 +129,7 @@ def evaluate(model, task, loader, device, max_batches=0):
             break
         cover, secret = cover.to(device), secret.to(device)
         container, _ = model.hide_reveal(cover, secret, task.task_id)
-        recovered = model.reveal(apply_attack(container, task), task.task_id)
+        recovered = model.reveal_container(apply_attack(container, task), task.task_id)
         values["cover_psnr"].append(psnr(container, cover))
         values["cover_ssim"].append(ssim(container, cover))
         values["secret_psnr"].append(psnr(recovered, secret))
