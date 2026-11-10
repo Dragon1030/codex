@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+pingpong_analysis.db
+pingpong_analysis.log
+*.mp4
+*.avi
+*.mov
+*.mkv
