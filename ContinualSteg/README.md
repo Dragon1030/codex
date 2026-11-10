@@ -70,7 +70,7 @@ or install the dependencies in a new environment:
 
 ```bash
 python -m pip install torch torchvision
-python -m pip install pillow pyyaml scikit-image tqdm
+python -m pip install pillow pyyaml scikit-image matplotlib tqdm
 ```
 
 The repository's `requirements.txt` lists PyTorch as a dependency, but on a
