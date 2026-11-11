@@ -2,6 +2,10 @@
 
 这张图对应仓库当前实际代码（`train.py`、`continual_steg/models.py`、`tasks.py`），不是原始 HiNet 或原始 UDH 的网络结构替换版。当前实现是一个紧凑的 UDH 风格 CNN，并在隐藏端和恢复端加入任务 Adapter、Prompt 和 Replay/Teacher 接口。
 
+更适合汇报和快速理解的简化图：
+[`continual_steg_structure_clean.svg`](continual_steg_structure_clean.svg) ·
+[`continual_steg_structure_clean.png`](continual_steg_structure_clean.png)
+
 ## 1. 总体流程
 
 ```mermaid

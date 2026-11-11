@@ -13,8 +13,8 @@ does not silently replace the original HiNet or UDH repositories.
 
 The code-aligned data flow and tensor shapes are documented in
 [`docs/continual_steg_structure.md`](docs/continual_steg_structure.md). A
-static overview is available as
-[`docs/continual_steg_structure.svg`](docs/continual_steg_structure.svg).
+clean static overview is available as
+[`docs/continual_steg_structure_clean.svg`](docs/continual_steg_structure_clean.svg).
 
 ## What is trained
 
