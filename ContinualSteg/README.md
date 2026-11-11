@@ -9,6 +9,13 @@ The implementation is self-contained and accepts the DIV2K folders already
 used on the server. It is an adapter baseline for research experiments; it
 does not silently replace the original HiNet or UDH repositories.
 
+## Structure diagram
+
+The code-aligned data flow and tensor shapes are documented in
+[`docs/continual_steg_structure.md`](docs/continual_steg_structure.md). A
+static overview is available as
+[`docs/continual_steg_structure.svg`](docs/continual_steg_structure.svg).
+
 ## What is trained
 
 The default continual stream is:
