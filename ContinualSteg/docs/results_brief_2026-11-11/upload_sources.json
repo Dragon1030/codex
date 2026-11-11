@@ -1,0 +1,27 @@
+[
+  {
+    "label": "comparison",
+    "file_id": "file_0000000019508209b887445e76562284",
+    "file": "raw/comparison.csv"
+  },
+  {
+    "label": "metrics_a",
+    "file_id": "file_0000000006cc82118012f4ff46f4c369",
+    "file": "raw/metrics_a.csv"
+  },
+  {
+    "label": "metrics_b",
+    "file_id": "file_0000000030908211be0d8bef7a2b31d5",
+    "file": "raw/metrics_b.csv"
+  },
+  {
+    "label": "metrics_c",
+    "file_id": "file_0000000038dc82099037fb7815e3447e",
+    "file": "raw/metrics_c.csv"
+  },
+  {
+    "label": "metrics_d",
+    "file_id": "file_0000000007ec82099ee77aea6b4930e1",
+    "file": "raw/metrics_d.csv"
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "selected_run": "second complete 15-row block in each metrics.csv",
+  "confirmed_user_parameters": {
+    "epochs_per_task": 50,
+    "max_train_batches": 0,
+    "max_val_batches": 0
+  },
+  "tasks": [
+    "clean",
+    "jpeg",
+    "gaussian",
+    "resize",
+    "crop"
+  ],
+  "methods": [
+    "full",
+    "no_distill",
+    "adapter_only",
+    "sequential_finetune"
+  ],
+  "source_files": [
+    {
+      "method": "full",
+      "source": "raw/metrics_a.csv",
+      "selected": "second 15-row run"
+    },
+    {
+      "method": "no_distill",
+      "source": "raw/metrics_b.csv",
+      "selected": "second 15-row run"
+    },
+    {
+      "method": "adapter_only",
+      "source": "raw/metrics_c.csv",
+      "selected": "second 15-row run"
+    },
+    {
+      "method": "sequential_finetune",
+      "source": "raw/metrics_d.csv",
+      "selected": "second 15-row run"
+    }
+  ],
+  "discarded_for_final_tables": "first 15-row block in each metrics.csv (retained in raw/)",
+  "comparison_upload_used_for_audit_only": "raw/comparison.csv; it describes the earlier short block and is not used for final tables"
+}
