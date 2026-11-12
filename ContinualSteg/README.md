@@ -15,6 +15,8 @@ The code-aligned data flow and tensor shapes are documented in
 [`docs/continual_steg_structure.md`](docs/continual_steg_structure.md). A
 clean static overview is available as
 [`docs/continual_steg_structure_clean.svg`](docs/continual_steg_structure_clean.svg).
+The detailed RwF/UDH comparison and metric-analysis notes are in
+[`docs/rwf_udh_comparison.md`](docs/rwf_udh_comparison.md).
 
 ## What is trained
 
